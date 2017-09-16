@@ -1,0 +1,120 @@
+#include "std_lib_facilities_4.h"
+#include "Chrono.h"
+
+class Brokerage;
+
+struct Stock
+{
+	string stock_name;
+	double stock_price;
+	
+	Stock();
+	Stock(string n, double p); //connstructor building the Stock with a given name and price
+		
+	string name() const {return stock_name;}
+	double price() const {return stock_price;}
+};
+
+class Shares{
+	Stock stock_type;
+	double num_shares;
+	
+	public:
+	Shares();
+	Shares(Stock s, double n);
+	
+	void update(int x) {num_shares = x;}
+	Stock type() const {return stock_type;}
+	double number() const {return num_shares;}
+	double value() const {return stock_type.price() * num_shares;}
+};
+
+class Patron
+{
+	string patron_name;
+	int acct_num;
+	vector<Shares> all_shares;
+	double cash_value;
+	
+	public:
+	Patron();
+	Patron(string n, int a, double c);
+	Patron(string n, int a, double c, vector<Shares> s);	
+	
+	void add_cash(double money) {cash_value += money;}
+	void remove_cash(double money) {cash_value -= money;}
+	
+	double num_shares(int type) const {return all_shares.at(type).number();}
+	void update_shares(int type, double number) {all_shares.at(type).update(number);}
+		
+	string name() const {return patron_name;}
+	//double val_shares() {return total_shares.total_value();}
+	int number() const {return acct_num;}
+	double cash() const {return cash_value;}
+	double total_value() const;
+	vector<Shares> shares() const {return all_shares;} //returns the vector of shares itself
+};
+
+struct Transaction{
+	Transaction();
+	Transaction(Patron p, char m, string t, double a);
+	Transaction(Patron p, char m, string t, double a, Chrono::Time ti, Chrono::Date d);
+	Chrono::Time trans_time;
+	Chrono::Date trans_date;
+	Patron trans_p;
+	char money_type;
+	string trans_type;
+	double monetary_value;
+	double amount;
+};
+
+class Brokerage
+{
+	string broke_name;
+	vector<Transaction> all_transactions;
+	double total_cash;
+	vector<Shares> all_shares;
+	vector<Patron> all_patrons;
+	
+	public:
+	Brokerage(string n);
+	Brokerage(string n, vector<Patron> p, vector<Transaction> trans, double c, vector<Shares> s);
+	
+	string name() const {return broke_name;}
+	
+	double USD() const {return total_cash + all_shares.at(0).value() + all_shares.at(1).value() + all_shares.at(2).value() + all_shares.at(3).value() + all_shares.at(4).value();} //Gets total value of Brokerage by adding individual values
+	double cash() const {return total_cash;}
+	
+	void add_cash(double money) {total_cash += money;}
+	void remove_cash(double money) {total_cash -= money;}
+	
+	Shares& shares_info(int x) {return all_shares.at(x);}
+	
+	//Accessing patron values within themselves
+	Patron& patron(int x) {return all_patrons.at(x);}
+	int patron_size() const {return all_patrons.size();}
+	int find_patron(int acct) const; //returns the index of the patron with this account number
+	void addPatron(Patron p) {all_patrons.push_back(p);}
+	
+	//Accessing transaction values
+	int transactions_size() const {return all_transactions.size();} //size of transaction
+	Transaction transaction(int x) {return all_transactions.at(x);} //getting an individual transaction
+	void addTransaction(Transaction t) {all_transactions.push_back(t);} //adding a transaction to the vector of transactions
+};
+
+istream& operator>>(istream& is, Brokerage& bb);
+ostream& operator<<(ostream& os, const Brokerage& bb);
+
+ostream& operator<<(ostream& os, const Stock& st);
+
+istream& operator>>(istream& is, Shares& sh);
+ostream& operator<<(ostream& os, const Shares& sh);
+
+istream& operator>>(istream& is, Patron& pp);
+ostream& operator<<(ostream& os, const Patron& pp);
+
+istream& operator>>(istream& is, Transaction& tt);
+ostream& operator<<(ostream& os, const Transaction& tt);
+
+class Corrupted_File{ };
+class Filename_error { };
